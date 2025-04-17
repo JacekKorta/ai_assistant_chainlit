@@ -1,0 +1,51 @@
+import chainlit as cl
+from openai import AsyncOpenAI
+from config.settings import get_settings
+import uuid
+
+settings = get_settings()
+client = AsyncOpenAI(api_key=settings.openai.api_key)
+
+@cl.on_chat_start
+async def on_chat_start():
+    # Unikalny identyfikator sesji
+    session_id = str(uuid.uuid4())
+    cl.user_session.set("session_id", session_id)
+    
+    # Taguj tę konwersację (przydatne przy przeglądaniu historii)
+    await cl.tag("nowa_konwersacja")
+
+@cl.on_message
+async def on_message(message: cl.Message):
+    chat_settings = cl.user_session.get("chat_settings") or {}
+    
+    # Automatycznie używaj kontekstu z cl.chat_context.to_openai()
+    messages = [
+        {
+            "content": "You are a helpful assistant",
+            "role": "system"
+        }
+    ] + cl.chat_context.to_openai()
+    
+    # Opcjonalnie - zastosuj dodatkowe metadane
+    await message.update(metadata={"timestamp": str(message.created_at)})
+    
+    # Wygeneruj odpowiedź
+    response = await client.chat.completions.create(
+        messages=messages,
+        model=chat_settings.get("Model", "gpt-4.1-nano"),
+        temperature=chat_settings.get("Temperature", 1),
+    )
+    
+    answer = response.choices[0].message.content
+    
+    # Możesz dodać metadane do odpowiedzi
+    await cl.Message(
+        content=answer,
+        metadata={"model": chat_settings.get("Model", "gpt-4.1-nano")}
+    ).send()
+
+# Funkcja do wznawiania konwersacji
+@cl.on_chat_resume
+async def on_chat_resume(thread: cl.Thread):
+    await cl.Message(f"Wznowiono poprzednią konwersację. ID sesji: {thread.id}").send()
