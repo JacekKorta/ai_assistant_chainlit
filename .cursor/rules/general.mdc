@@ -1,0 +1,8 @@
+---
+description: Geenral rules
+globs: *.py
+alwaysApply: true
+---
+
+All comments and docstrings in the code must be written in English 
+Dependency management via https://github.com/astral-sh/uv and virtual environment .venv

@@ -1,0 +1,24 @@
+SECRET_KEY: "zmien-ten-klucz-na-cos-bezpiecznego"
+DEBUG: false
+ALLOWED_HOSTS:
+  - localhost
+  - 127.0.0.1
+  - example.com
+
+# Database settings
+POSTGRES_DB_USE: true
+POSTGRES_DB: ai-assistant
+POSTGRES_USER: postgres
+POSTGRES_PASSWORD: haslo
+POSTGRES_HOST: db
+POSTGRES_PORT: 5432
+
+# Ustawienia e-mail
+EMAIL_HOST: smtp.example.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: true
+EMAIL_HOST_USER: user@example.com
+EMAIL_HOST_PASSWORD: haslo
+
+# Timezone
+TIME_ZONE: "Europe/Warsaw" 

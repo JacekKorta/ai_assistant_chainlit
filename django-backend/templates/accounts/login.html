@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Logowanie | Boilerplate Template{% endblock %}
+
+{% block content %}
+<div class="auth-form">
+    <h1>Logowanie</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Zaloguj</button>
+    </form>
+</div>
+{% endblock %} 
