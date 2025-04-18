@@ -13,7 +13,7 @@ Przed uruchomieniem projektu należy przygotować pliki konfiguracyjne dla poszc
 
 ### PostgreSQL (Wspólna Baza Danych)
 
-W pliku `docker-compose.yml` zdefiniowana jest usługa `postgres`, która służy jako wspólna baza danych dla Django i Prismy. Konfiguracja domyślnej bazy danych i użytkownika (np. dla Prismy) odbywa się poprzez zmienne środowiskowe `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` ustawiane globalnie lub w głównym pliku `.env`.
+W pliku `docker-compose.yml` zdefiniowana jest usługa `postgres`, która służy jako wspólna baza danych dla Django i Prismy. Konfiguracja domyślnej bazy danych i użytkownika (np. dla Prismy) odbywa się poprzez zmienne środowiskowe `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` ustawiane globalnie lub w głównym pliku `.env`. **Upewnij się, że `DATABASE_URL` w pliku `.env` wskazuje na hosta `postgres` (np. `postgresql://user:pass@postgres:5432/db`).**
 
 ### Django Backend (`django-backend`)
 
@@ -33,15 +33,39 @@ Konfiguracja Nginx znajduje się w pliku `nginx/nginx.conf`. Domyślnie jest sko
 
 ### Prisma
 
-[TODO: Opisać kroki konfiguracji dla Prismy. Wiadomo, że korzysta z bazy `postgres` i domyślnych danych uwierzytelniających z `docker-compose.yml` lub zmiennych środowiskowych.]
+Schemat Prisma znajduje się w `prisma/schema.prisma`. Do interakcji z bazą danych za pomocą Prisma (migracje, studio) służy dedykowana usługa `prisma_cli` zdefiniowana w `docker-compose.yml`. Usługa ta wymaga pliku `.env` w głównym katalogu projektu z poprawnie ustawioną zmienną `DATABASE_URL` wskazującą na kontener `postgres`.
 
 ## Uruchomienie
 
-Aby uruchomić wszystkie usługi zdefiniowane w `docker-compose.yml`:
+Aby uruchomić wszystkie niezbędne usługi (bez narzędzi deweloperskich jak Prisma Studio):
 
 ```bash
 docker compose up -d --build
 ```
+
+## Zarządzanie Bazą Danych (Prisma)
+
+Po uruchomieniu usług (`docker compose up -d`), możesz zarządzać schematem bazy danych za pomocą narzędzi Prisma uruchamianych w kontenerze `prisma_cli`.
+
+### Migracje Prisma
+
+Aby zastosować oczekujące migracje zdefiniowane w katalogu `prisma/migrations` do bazy danych:
+
+```bash
+docker compose run --rm prisma_cli npx prisma migrate deploy
+```
+To polecenie należy wykonać po każdej zmianie w `prisma/schema.prisma` i wygenerowaniu nowej migracji (np. za pomocą `docker compose run --rm prisma_cli npx prisma migrate dev --name nazwa_migracji`).
+
+### Prisma Studio (Narzędzie Deweloperskie)
+
+Aby uruchomić Prisma Studio (graficzny interfejs do przeglądania i edycji danych w bazie):
+
+```bash
+docker compose run --rm -p 5555:5555 prisma_cli npx prisma studio
+```
+Następnie otwórz w przeglądarce adres: [http://localhost:5555](http://localhost:5555).
+
+Prisma Studio jest narzędziem deweloperskim i powinno być uruchamiane tylko na żądanie.
 
 ## Dostęp do Aplikacji
 
