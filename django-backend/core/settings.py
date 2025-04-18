@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
     
     # Local apps
     "accounts.apps.AccountsConfig",
@@ -85,11 +86,11 @@ if USE_POSTGRES:
         "default": {
             "ENGINE": "django.db.backends.postgresql",
             # Używamy zmiennych z prefiksem DATABASE_
-            "NAME": os.getenv('DATABASE_NAME'),
-            "USER": os.getenv('DATABASE_USER'),
-            "PASSWORD": os.getenv('DATABASE_PASSWORD'),
-            "HOST": os.getenv('DATABASE_HOST', 'db'),
-            "PORT": int(os.getenv('DATABASE_PORT', '5432')),
+            "NAME": os.getenv('DJANGO_DB_NAME'),
+            "USER": os.getenv('DJANGO_DB_USER'), 
+            "PASSWORD": os.getenv('DJANGO_DB_PASSWORD'), 
+            "HOST": os.getenv('DJANGO_DB_HOST', 'postgres'), 
+            "PORT": int(os.getenv('DJANGO_DB_PORT', '5432')), 
         }
     }
 else:

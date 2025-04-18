@@ -5,7 +5,6 @@ from .models import CustomUser
 
 class AccountsTestCase(TestCase):
     def setUp(self):
-        # Utworzenie testowego użytkownika
         self.user = CustomUser.objects.create_user(
             username='testuser',
             email='test@example.com',
@@ -27,6 +26,7 @@ class AccountsTestCase(TestCase):
         response = self.client.post(reverse('accounts:login'), login_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['user'].is_authenticated)
+        self.client.logout()
         
         # Test logowania z nieprawidłowymi danymi
         login_data = {
@@ -38,11 +38,11 @@ class AccountsTestCase(TestCase):
         self.assertFalse(response.context['user'].is_authenticated)
 
     def test_logout_view(self):
-        # Zaloguj użytkownika
-        self.client.login(username='testuser', password='testpassword123')
+
+        self.client.force_login(self.user)
         
         # Sprawdź czy wylogowanie działa
-        response = self.client.get(reverse('accounts:logout'), follow=True)
+        response = self.client.post(reverse('accounts:logout'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.context['user'].is_authenticated)
         
@@ -52,7 +52,7 @@ class AccountsTestCase(TestCase):
         self.assertNotEqual(response.status_code, 200)
         
         # Zaloguj użytkownika
-        self.client.login(username='testuser', password='testpassword123')
+        self.client.force_login(self.user)
         
         # Test dostępu do dashboard gdy zalogowany
         response = self.client.get(reverse('accounts:dashboard'))

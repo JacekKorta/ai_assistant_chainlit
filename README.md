@@ -17,9 +17,50 @@ W pliku `docker-compose.yml` zdefiniowana jest usługa `postgres`, która służ
 
 ### Django Backend (`django-backend`)
 
-1.  **Plik Konfiguracyjny:** Upewnij się, że plik `django-backend/config.yml` istnieje i zawiera poprawną konfigurację, w tym dane dostępowe do bazy danych PostgreSQL. Szczegóły dotyczące struktury tego pliku znajdują się [TODO: link do dokumentacji lub opisu struktury config.yml].
-2.  **Zmienne Środowiskowe dla Bazy Danych:** Aplikacja Django wczytuje dane dostępowe do bazy danych (nazwa bazy, użytkownik, hasło, host, port) ze swojego pliku `config.yml`. Host bazy danych powinien być ustawiony na `postgres` (nazwa usługi Docker).
-3.  **Utworzenie Bazy Danych i Użytkownika:** Po pierwszym uruchomieniu kontenera `postgres`, należy ręcznie utworzyć dedykowaną bazę danych i użytkownika dla Django. Połącz się z kontenerem `postgres` i wykonaj odpowiednie polecenia SQL (patrz sekcja `PostgreSQL` w dokumentacji konfiguracji - TODO: dodać link lub instrukcje).
+1.  **Zmienne Środowiskowe dla Bazy Danych:** Aplikacja Django jest skonfigurowana do korzystania z dedykowanej bazy danych PostgreSQL. Upewnij się, że w głównym pliku `.env` zdefiniowane są następujące zmienne środowiskowe:
+    *   `DJANGO_DB_NAME`: Nazwa bazy danych dla Django (np. `django_db`).
+    *   `DJANGO_DB_USER`: Nazwa użytkownika bazy danych dla Django (np. `django_user`).
+    *   `DJANGO_DB_PASSWORD`: Hasło dla użytkownika bazy danych Django.
+    *   `DJANGO_DB_HOST`: Nazwa hosta bazy danych (powinna być `postgres`, czyli nazwa usługi Docker).
+    *   `DJANGO_DB_PORT`: Port bazy danych (domyślnie `5432`).
+    Aplikacja odczytuje te zmienne w pliku `django-backend/core/settings.py`.
+
+2.  **Utworzenie Dedykowanej Bazy Danych i Użytkownika:** Po pierwszym uruchomieniu kontenera `postgres` (`docker compose up -d postgres`), należy **ręcznie utworzyć dedykowaną bazę danych i użytkownika** dla aplikacji Django. Połącz się z działającym kontenerem PostgreSQL używając użytkownika zdefiniowanego w `DATABASE_USER` (dla Prismy/Chainlit), który ma uprawnienia do tworzenia baz i użytkowników (lub użyj domyślnego superużytkownika `postgres`, jeśli to konieczne):
+    ```bash
+    docker compose exec postgres psql -U ${DATABASE_USER} -d ${DATABASE_NAME}
+    # Lub: docker compose exec postgres psql -U postgres
+    ```
+    Następnie, wewnątrz interfejsu `psql`, wykonaj następujące polecenia SQL, zastępując wartości w nawiasach `< >` tymi zdefiniowanymi w zmiennych `DJANGO_DB_*` w pliku `.env`:
+    ```sql
+    -- Utwórz bazę danych
+    CREATE DATABASE <DJANGO_DB_NAME>;
+
+    -- Utwórz użytkownika z hasłem
+    CREATE USER <DJANGO_DB_USER> WITH PASSWORD '<DJANGO_DB_PASSWORD>';
+
+    -- Nadaj wszystkie uprawnienia do nowej bazy danych temu użytkownikowi
+    GRANT ALL PRIVILEGES ON DATABASE <DJANGO_DB_NAME> TO <DJANGO_DB_USER>;
+
+    -- Ustaw użytkownika jako właściciela bazy (opcjonalne, ale często przydatne)
+    ALTER DATABASE <DJANGO_DB_NAME> OWNER TO <DJANGO_DB_USER>;
+
+    -- WAŻNE DLA TESTÓW DJANGO: Nadaj użytkownikowi uprawnienia do tworzenia baz danych
+    -- Jest to wymagane przez mechanizm testowy Django do tworzenia tymczasowej bazy testowej.
+    ALTER USER <DJANGO_DB_USER> CREATEDB;
+
+    -- Wyjdź z psql
+    \q
+    ```
+    Na przykład, jeśli używasz wartości `django_db`, `django_user` i `django_secret_password`:
+    ```sql
+    CREATE DATABASE django_db;
+    CREATE USER django_user WITH PASSWORD 'django_secret_password';
+    GRANT ALL PRIVILEGES ON DATABASE django_db TO django_user;
+    ALTER DATABASE django_db OWNER TO django_user;
+    ALTER USER django_user CREATEDB;
+    \q
+    ```
+    Ten krok jest niezbędny, aby Django mogło połączyć się ze swoją bazą danych oraz aby można było uruchamiać testy (`python manage.py test`).
 
 ### Chainlit (`chainlit`)
 
