@@ -1,8 +1,14 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description: Geenral rules
 globs: *.py
 alwaysApply: true
 ---
 
-All comments and docstrings in the code must be written in English 
-Dependency management via https://github.com/astral-sh/uv and virtual environment .venv
+- All comments and docstrings in the code must be written in English 
+- Dependency management via https://github.com/astral-sh/uv and virtual environment .venv
+- Do not add unnecessary dependencies. Before adding a new library, ask the user for feedback
