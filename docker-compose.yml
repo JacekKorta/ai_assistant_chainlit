@@ -11,15 +11,17 @@ services:
       - postgres
     networks:
       - app_network
+    env_file:
+      - ./.env
 
   postgres:
     image: postgres:16
     volumes:
       - postgres-data:/var/lib/postgresql/data
     env_file:
-      - ./prisma/.env
+      - ./.env
     ports:
-      - ${POSTGRES_PORT:-5432}:5432
+      - ${DATABASE_PORT:-5432}:5432
     networks:
       - app_network
 
@@ -49,6 +51,8 @@ services:
       - app_network
     ports:
       - "8000:8000"
+    env_file:
+      - ./.env
 
 networks:
   app_network:

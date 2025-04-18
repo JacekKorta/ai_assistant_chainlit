@@ -11,30 +11,23 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
-import yaml
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Wczytanie konfiguracji z pliku YAML
-config_path = os.path.join(BASE_DIR, 'config.yml')
-if os.path.exists(config_path):
-    with open(config_path) as f:
-        config = yaml.safe_load(f)
-else:
-    config = {}
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config.get('SECRET_KEY', "django-insecure-yl%lq=n@4uoj@obv6n&!=l!uy6)uti11h66yoph!4j-%@$l3#g")
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', "django-insecure-fallback-key-set-in-settings")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config.get('DEBUG', True)
+DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = config.get('ALLOWED_HOSTS', [])
+# Konwersja string rozdzielonego przecinkami na listę
+allowed_hosts_str = os.getenv('DJANGO_ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
 
 
 # Application definition
@@ -84,15 +77,19 @@ WSGI_APPLICATION = "core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if config.get('POSTGRES_DB_USE'):
+# Sprawdzamy zmienną DJANGO_USE_POSTGRES
+USE_POSTGRES = os.getenv('DJANGO_USE_POSTGRES', 'False').lower() in ('true', '1', 't')
+
+if USE_POSTGRES:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": config.get('POSTGRES_DB'),
-            "USER": config.get('POSTGRES_USER'),
-            "PASSWORD": config.get('POSTGRES_PASSWORD'),
-            "HOST": config.get('POSTGRES_HOST', 'db'),
-            "PORT": config.get('POSTGRES_PORT', '5432'),
+            # Używamy zmiennych z prefiksem DATABASE_
+            "NAME": os.getenv('DATABASE_NAME'),
+            "USER": os.getenv('DATABASE_USER'),
+            "PASSWORD": os.getenv('DATABASE_PASSWORD'),
+            "HOST": os.getenv('DATABASE_HOST', 'db'),
+            "PORT": int(os.getenv('DATABASE_PORT', '5432')),
         }
     }
 else:
@@ -128,7 +125,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = config.get('TIME_ZONE', 'UTC')
+# Używamy zmiennej DJANGO_TIME_ZONE
+TIME_ZONE = os.getenv('DJANGO_TIME_ZONE', 'UTC')
 
 USE_I18N = True
 
@@ -153,12 +151,13 @@ LOGIN_REDIRECT_URL = "accounts:dashboard"
 LOGOUT_REDIRECT_URL = "accounts:login"
 
 # Email settings
-if config.get('EMAIL_HOST'):
+# Używamy zmiennych z prefiksem DJANGO_EMAIL_
+EMAIL_HOST = os.getenv('DJANGO_EMAIL_HOST')
+if EMAIL_HOST:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = config.get('EMAIL_HOST')
-    EMAIL_PORT = config.get('EMAIL_PORT', 587)
-    EMAIL_USE_TLS = config.get('EMAIL_USE_TLS', True)
-    EMAIL_HOST_USER = config.get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = config.get('EMAIL_HOST_PASSWORD')
+    EMAIL_PORT = int(os.getenv('DJANGO_EMAIL_PORT', 587))
+    EMAIL_USE_TLS = os.getenv('DJANGO_EMAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
+    EMAIL_HOST_USER = os.getenv('DJANGO_EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.getenv('DJANGO_EMAIL_HOST_PASSWORD')
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
