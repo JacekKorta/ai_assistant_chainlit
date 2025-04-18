@@ -5,19 +5,21 @@ services:
       dockerfile: django-backend/build/Dockerfile
     restart: always
     volumes:
-      - ./django-backend:/app          
+      - ./django-backend:/app
       - static_volume:/app/staticfiles
     depends_on:
-      - db
+      - postgres
     networks:
       - app_network
 
-  db:
+  postgres:
     image: postgres:16
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres-data:/var/lib/postgresql/data
     env_file:
-      - django-backend/build/db.env
+      - ./prisma/.env
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
     networks:
       - app_network
 
@@ -39,10 +41,10 @@ services:
       dockerfile: chainlit/build/Dockerfile
     restart: always
     volumes:
-      - ./chainlit:/app 
-    command: ["uv", "run", "chainlit", "run", "main.py", "--host", "0.0.0.0", "--port", "8000", "-h", "-w"]  
+      - ./chainlit:/app
+    command: ["uv", "run", "chainlit", "run", "main.py", "--host", "0.0.0.0", "--port", "8000", "-h", "-w"]
     depends_on:
-      - db
+      - postgres
     networks:
       - app_network
     ports:
@@ -52,5 +54,5 @@ networks:
   app_network:
 
 volumes:
-  postgres_data:
-  static_volume: 
+  postgres-data:
+  static_volume:
