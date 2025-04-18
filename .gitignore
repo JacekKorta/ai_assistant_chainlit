@@ -11,5 +11,5 @@ wheels/
 # config files
 *.env
 .env
-config.yaml
+config.yml
 
