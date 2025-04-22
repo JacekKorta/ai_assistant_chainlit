@@ -13,3 +13,5 @@ wheels/
 .env
 config.yml
 
+# other
+temp/
