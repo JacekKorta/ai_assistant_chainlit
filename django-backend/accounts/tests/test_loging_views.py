@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from .models import CustomUser
+
+from accounts.models import CustomUser
 
 
 class AccountsViewsTestCase(TestCase):
