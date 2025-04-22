@@ -29,7 +29,7 @@ services:
     networks:
       - app_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_PASSWORD}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -56,12 +56,16 @@ services:
     command: ["uv", "run", "chainlit", "run", "main.py", "--host", "0.0.0.0", "--port", "8000", "-h", "-w"]
     depends_on:
       - postgres
+      - web
+      - nginx
     networks:
       - app_network
     ports:
       - "8000:8000"
     env_file:
       - ./.env
+    environment:
+      - DJANGO_BACKEND_URL=http://nginx
 
   prisma_cli:
     build:
