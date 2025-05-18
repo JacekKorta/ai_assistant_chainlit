@@ -43,6 +43,7 @@ services:
       - static_volume:/app/staticfiles
     depends_on:
       - web
+      - chainlit
     networks:
       - app_network
 
@@ -57,7 +58,6 @@ services:
     depends_on:
       - postgres
       - web
-      - nginx
     networks:
       - app_network
     ports:

@@ -236,33 +236,6 @@ wheels = [
 ]
 
 [[package]]
-name = "chainlint"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "asyncpg" },
-    { name = "boto3" },
-    { name = "chainlit" },
-    { name = "ipython" },
-    { name = "mcp" },
-    { name = "openai" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "asyncpg", specifier = ">=0.30.0" },
-    { name = "boto3", specifier = ">=1.37.35" },
-    { name = "chainlit", specifier = ">=2.5.5" },
-    { name = "ipython", specifier = ">=9.1.0" },
-    { name = "mcp", specifier = ">=1.6.0" },
-    { name = "openai", specifier = ">=1.74.0" },
-    { name = "pydantic", specifier = ">=2.11.3" },
-    { name = "pydantic-settings", specifier = ">=2.8.1" },
-]
-
-[[package]]
 name = "chainlit"
 version = "2.5.5"
 source = { registry = "https://pypi.org/simple" }
@@ -294,6 +267,33 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d9/32/e4a6ac0a8e7430cd7b76b712b8df2f83abf129e7b843180e319f647fd3be/chainlit-2.5.5.tar.gz", hash = "sha256:d6388f93b9089e3a80bc2bd286a157a4a9d8016dc2c806372fd77119bcc0d36c", size = 9520733 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d8/b2/9bf8c07b18ef34dc70771a0e21f6f0a5392dd3a753135743178cd59f1b7f/chainlit-2.5.5-py3-none-any.whl", hash = "sha256:1783c7b868fe41158283b498020fa18a23c39d07319ad9927e429f1e888f6eb5", size = 9670768 },
+]
+
+[[package]]
+name = "chainlit-ui"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "asyncpg" },
+    { name = "boto3" },
+    { name = "chainlit" },
+    { name = "ipython" },
+    { name = "mcp" },
+    { name = "openai" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "asyncpg", specifier = ">=0.30.0" },
+    { name = "boto3", specifier = ">=1.37.35" },
+    { name = "chainlit", specifier = ">=2.5.5" },
+    { name = "ipython", specifier = ">=9.1.0" },
+    { name = "mcp", specifier = ">=1.6.0" },
+    { name = "openai", specifier = ">=1.74.0" },
+    { name = "pydantic", specifier = ">=2.11.3" },
+    { name = "pydantic-settings", specifier = ">=2.8.1" },
 ]
 
 [[package]]
