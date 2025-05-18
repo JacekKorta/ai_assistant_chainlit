@@ -1,3 +1,19 @@
+# Project Documentation
+
+## Spis treści
+
+- [Wymagania i uruchomienie](docs/requirements_and_run.md)
+- [Makefile i komendy developerskie](docs/makefile_commands.md)
+- [Architektura i zależności](docs/architecture.md)
+- [Django Backend](docs/django_backend.md)
+- [Chainlit](docs/chainlit.md)
+- [Nginx](docs/nginx.md)
+- [Prisma](docs/prisma.md)
+
+## Opis projektu
+
+Projekt składa się z kilku głównych komponentów: backendu Django (API i autoryzacja), Chainlit (interfejs AI/chat), Nginx (reverse proxy i serwowanie statycznych plików) oraz Prisma (ORM dla wybranych usług). Każdy komponent jest uruchamiany jako osobny kontener Docker i komunikuje się przez sieć docker-compose. Szczegóły znajdziesz w dokumentacji w katalogu docs/.
+
 # Project Name - TODO: Update Project Name
 
 [Krótki opis projektu - TODO: Dodać opis]
