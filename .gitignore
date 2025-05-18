@@ -1,17 +1,31 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-dist/
-wheels/
-*.egg-info
+# IDEs and editors
+.vscode/
 
 # Virtual environments
-.venv
+.venv/
+venv/
+ENV/
+env/
 
-# config files
-*.env
+# Bytecode and cache files
+__pycache__/
+*.py[cod]
+
+# Build and distribution directories
+build/
+dist/
+*.egg-info/
+
+# Django-specific files (e.g. database and logs)
+db.sqlite3
+*.log
+
+# System files
+.DS_Store
+
+# Environment files (ignore .env files in all subdirectories)
+**/.env
 .env
-config.yml
 
-# other
+# Temporary files and folders
 temp/
