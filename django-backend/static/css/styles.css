@@ -118,10 +118,28 @@ main {
     margin-top: 2rem;
 }
 
+/* Logout button styled as link */
+.logout-button {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: inherit;
+    font-family: inherit;
+    margin-left: 20px;
+    padding: 0;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.logout-button:hover {
+    color: #ddd;
+}
+
 /* Footer */
 footer {
     background: #333;
     color: #fff;
     text-align: center;
     padding: 1rem 0;
-} 
+}
