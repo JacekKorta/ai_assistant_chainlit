@@ -7,7 +7,7 @@ class OpenAISettings(BaseSettings):
     api_key: str
 
     model_config = SettingsConfigDict(
-        env_prefix="OPEN_AI_",
+        env_prefix="OPENAI_",
         env_file="../.env",
         extra="ignore"
     )
