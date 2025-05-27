@@ -29,7 +29,15 @@ Przed uruchomieniem projektu należy przygotować pliki konfiguracyjne dla poszc
 
 ### PostgreSQL (Wspólna Baza Danych)
 
-W pliku `docker-compose.yml` zdefiniowana jest usługa `postgres`, która służy jako wspólna baza danych dla Django i Prismy. Konfiguracja domyślnej bazy danych i użytkownika (np. dla Prismy) odbywa się poprzez zmienne środowiskowe `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` ustawiane globalnie lub w głównym pliku `.env`. **Upewnij się, że `DATABASE_URL` w pliku `.env` wskazuje na hosta `postgres` (np. `postgresql://user:pass@postgres:5432/db`).**
+W pliku `docker-compose.yml` zdefiniowana jest usługa `postgres`, która służy jako wspólna baza danych dla Django, Chainlit i LiteLLM. Konfiguracja domyślnej bazy danych i użytkownika odbywa się poprzez zmienne środowiskowe `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` ustawiane globalnie lub w głównym pliku `.env`. 
+
+Dodatkowo, kontener PostgreSQL automatycznie tworzy dedykowane bazy danych i użytkowników dla poszczególnych usług przy pierwszym uruchomieniu, korzystając ze skryptu inicjalizacyjnego `postgres/docker-entrypoint-initdb.d/create-multiple-databases.sh`. Skrypt ten tworzy bazy danych i użytkowników na podstawie następujących zmiennych środowiskowych zdefiniowanych w pliku `.env`:
+
+- Dla Django: `DJANGO_DB_NAME`, `DJANGO_DB_USER`, `DJANGO_DB_PASSWORD`
+- Dla Chainlit: `CHAINLIT_DB_NAME`, `CHAINLIT_DB_USER`, `CHAINLIT_DB_PASSWORD`
+- Dla LiteLLM: `LITELLM_DB_NAME`, `LITELLM_DB_USER`, `LITELLM_DB_PASSWORD`
+
+**Upewnij się, że odpowiednie zmienne `DATABASE_URL` w pliku `.env` wskazują na hosta `postgres` (np. `postgresql://user:pass@postgres:5432/db`).**
 
 ### Django Backend (`django-backend`)
 
@@ -41,25 +49,17 @@ W pliku `docker-compose.yml` zdefiniowana jest usługa `postgres`, która służ
     *   `DJANGO_DB_PORT`: Port bazy danych (domyślnie `5432`).
     Aplikacja odczytuje te zmienne w pliku `django-backend/core/settings.py`.
 
-2.  **Utworzenie Dedykowanej Bazy Danych i Użytkownika:** Po pierwszym uruchomieniu kontenera `postgres` (`docker compose up -d postgres`), należy **ręcznie utworzyć dedykowaną bazę danych i użytkownika** dla aplikacji Django. Połącz się z działającym kontenerem PostgreSQL używając użytkownika zdefiniowanego w `DATABASE_USER` (dla Prismy/Chainlit), który ma uprawnienia do tworzenia baz i użytkowników (lub użyj domyślnego superużytkownika `postgres`, jeśli to konieczne):
+2.  **Automatyczne Utworzenie Dedykowanej Bazy Danych i Użytkownika:** Dzięki skryptowi inicjalizacyjnemu `postgres/docker-entrypoint-initdb.d/create-multiple-databases.sh`, dedykowana baza danych i użytkownik dla aplikacji Django są tworzone automatycznie przy pierwszym uruchomieniu kontenera PostgreSQL. Wystarczy, że w pliku `.env` zdefiniowane są zmienne środowiskowe `DJANGO_DB_NAME`, `DJANGO_DB_USER` i `DJANGO_DB_PASSWORD`.
+
+    Skrypt nadaje również wszystkie niezbędne uprawnienia, w tym właścicielstwo bazy danych i schematu. Jeśli potrzebujesz dodatkowych uprawnień dla użytkownika Django (np. do tworzenia baz danych dla testów), możesz je dodać ręcznie, łącząc się z bazą danych:
+
     ```bash
-    docker compose exec postgres psql -U ${DATABASE_USER} -d ${DATABASE_NAME}
-    # Lub: docker compose exec postgres psql -U postgres
+    docker compose exec postgres psql -U postgres
     ```
-    Następnie, wewnątrz interfejsu `psql`, wykonaj następujące polecenia SQL, zastępując wartości w nawiasach `< >` tymi zdefiniowanymi w zmiennych `DJANGO_DB_*` w pliku `.env`:
+
+    Następnie, wewnątrz interfejsu `psql`, możesz wykonać dodatkowe polecenia SQL, np.:
+
     ```sql
-    -- Utwórz bazę danych
-    CREATE DATABASE <DJANGO_DB_NAME>;
-
-    -- Utwórz użytkownika z hasłem
-    CREATE USER <DJANGO_DB_USER> WITH PASSWORD '<DJANGO_DB_PASSWORD>';
-
-    -- Nadaj wszystkie uprawnienia do nowej bazy danych temu użytkownikowi
-    GRANT ALL PRIVILEGES ON DATABASE <DJANGO_DB_NAME> TO <DJANGO_DB_USER>;
-
-    -- Ustaw użytkownika jako właściciela bazy (opcjonalne, ale często przydatne)
-    ALTER DATABASE <DJANGO_DB_NAME> OWNER TO <DJANGO_DB_USER>;
-
     -- WAŻNE DLA TESTÓW DJANGO: Nadaj użytkownikowi uprawnienia do tworzenia baz danych
     -- Jest to wymagane przez mechanizm testowy Django do tworzenia tymczasowej bazy testowej.
     ALTER USER <DJANGO_DB_USER> CREATEDB;
@@ -67,20 +67,26 @@ W pliku `docker-compose.yml` zdefiniowana jest usługa `postgres`, która służ
     -- Wyjdź z psql
     \q
     ```
-    Na przykład, jeśli używasz wartości `django_db`, `django_user` i `django_secret_password`:
-    ```sql
-    CREATE DATABASE django_db;
-    CREATE USER django_user WITH PASSWORD 'django_secret_password';
-    GRANT ALL PRIVILEGES ON DATABASE django_db TO django_user;
-    ALTER DATABASE django_db OWNER TO django_user;
-    ALTER USER django_user CREATEDB;
-    \q
-    ```
-    Ten krok jest niezbędny, aby Django mogło połączyć się ze swoją bazą danych oraz aby można było uruchamiać testy (`python manage.py test`).
 
 ### Chainlit (`chainlit`)
 
-[TODO: Opisać kroki konfiguracji dla Chainlit, jeśli są wymagane. Na razie wiadomo, że korzysta z bazy `postgres`.]
+Chainlit wymaga odpowiedniej konfiguracji zmiennych środowiskowych. Przykładowy plik konfiguracyjny znajduje się w `chainlit/.env-example`. Aby skonfigurować Chainlit:
+
+1. Skopiuj plik `chainlit/.env-example` do `chainlit/.env` i dostosuj wartości zmiennych według potrzeb.
+
+2. Upewnij się, że w głównym pliku `.env` projektu zdefiniowane są zmienne środowiskowe dla bazy danych Chainlit:
+   * `CHAINLIT_DB_NAME`: Nazwa bazy danych dla Chainlit
+   * `CHAINLIT_DB_USER`: Nazwa użytkownika bazy danych dla Chainlit
+   * `CHAINLIT_DB_PASSWORD`: Hasło dla użytkownika bazy danych Chainlit
+
+3. Skonfiguruj dostęp do API OpenAI poprzez zmienne:
+   * `OPENAI_URL`: URL API OpenAI (domyślnie: `https://api.openai.com/v1/`)
+   * `OPENAI_API_KEY`: Klucz API OpenAI
+
+4. Ustaw klucze dla autentykacji Chainlit:
+   * `CHAINLIT_AUTH_SECRET`: Sekretny klucz używany do autentykacji w Chainlit
+
+Chainlit komunikuje się z backendem Django poprzez zmienną środowiskową `DJANGO_BACKEND_URL` (domyślnie ustawioną na `http://nginx` w `docker-compose.yml`) oraz z LiteLLM Proxy poprzez `LITELLM_PROXY_URL` (domyślnie `http://litellm-proxy:8080`).
 
 ### Nginx (`nginx`)
 
@@ -128,7 +134,30 @@ Prisma Studio jest narzędziem deweloperskim i powinno być uruchamiane tylko na
 
 -   Aplikacja Django: [http://localhost](http://localhost) (przez Nginx)
 -   Chainlit UI: [http://localhost:8000](http://localhost:8000)
+-   LiteLLM Proxy: [http://localhost:8080](http://localhost:8080)
 
 ## Dodatkowe Informacje
 
-[TODO: Dodać linki do dalszej dokumentacji, opis struktury projektu itp.]
+### LiteLLM Proxy
+
+Projekt wykorzystuje LiteLLM Proxy jako pośrednika do komunikacji z modelami językowymi. Konfiguracja LiteLLM znajduje się w pliku `litellm-proxy/config.yaml`. Proxy wymaga następujących zmiennych środowiskowych w głównym pliku `.env`:
+
+- `LITELLM_DB_NAME`, `LITELLM_DB_USER`, `LITELLM_DB_PASSWORD`: Dane dostępowe do dedykowanej bazy danych
+- `LITELLM_DB_URL`: Pełny URL połączenia do bazy danych (np. `postgresql://litellm_user:password@postgres:5432/litellm_db`)
+- `LITELLM_MASTER_KEY`: Główny klucz API dla LiteLLM
+- `LITELLM_SALT_KEY`: Klucz używany do szyfrowania danych
+
+LiteLLM Proxy jest dostępny pod adresem [http://localhost:8080](http://localhost:8080).
+
+### Struktura Projektu
+
+Projekt składa się z następujących głównych komponentów:
+
+- `django-backend/`: Backend Django z API i autoryzacją
+- `chainlit/`: Interfejs użytkownika AI/chat oparty na Chainlit
+- `nginx/`: Konfiguracja serwera Nginx (reverse proxy)
+- `postgres/`: Skrypty inicjalizacyjne dla bazy danych PostgreSQL
+- `prisma/`: Schemat bazy danych i narzędzia ORM
+- `litellm-proxy/`: Konfiguracja proxy dla modeli językowych
+
+Szczegółowa dokumentacja poszczególnych komponentów znajduje się w katalogu `docs/`.

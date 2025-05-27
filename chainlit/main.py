@@ -1,5 +1,6 @@
 import chainlit as cl
 from openai import AsyncOpenAI
+import os
 
 import chainlit_components
 import config
@@ -7,7 +8,11 @@ from config.settings import get_settings
 
 
 settings = get_settings()
-client = AsyncOpenAI(api_key=settings.openai.api_key)
+litellm_proxy_url = os.environ.get("LITELLM_PROXY_URL")
+if litellm_proxy_url:
+    client = AsyncOpenAI(base_url=litellm_proxy_url, api_key="not-needed")
+else:
+    client = AsyncOpenAI(api_key=settings.openai.api_key)
 
 # Instrument the OpenAI client
 cl.instrument_openai()
@@ -46,8 +51,3 @@ async def on_message(message: cl.Message):
         temperature=chat_settings.get("Temperature", 1)
     )
     await cl.Message(content=response.choices[0].message.content).send()
-
-
-
-
-

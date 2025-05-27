@@ -18,10 +18,20 @@ services:
     image: postgres:16
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_USER=${DATABASE_USER:-root}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-root}
-      - POSTGRES_DB=${DATABASE_NAME:-postgres}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+      - DJANGO_DB_NAME
+      - DJANGO_DB_USER
+      - DJANGO_DB_PASSWORD
+      - CHAINLIT_DB_NAME
+      - CHAINLIT_DB_USER
+      - CHAINLIT_DB_PASSWORD
+      - LITELLM_DB_NAME
+      - LITELLM_DB_USER
+      - LITELLM_DB_PASSWORD
     env_file:
       - ./.env
     ports:
@@ -58,6 +68,7 @@ services:
       - postgres
       - web
       - nginx
+      - litellm-proxy
     networks:
       - app_network
     ports:
@@ -66,6 +77,7 @@ services:
       - ./.env
     environment:
       - DJANGO_BACKEND_URL=http://nginx
+      - LITELLM_PROXY_URL=http://litellm-proxy:8080
 
   prisma_cli:
     build:
@@ -84,6 +96,23 @@ services:
     stdin_open: true
     tty: true
     command: ["tail", "-f", "/dev/null"]
+
+  litellm-proxy:
+    image: ghcr.io/berriai/litellm:main-latest
+    restart: always
+    volumes:
+      - ./litellm-proxy/config.yaml:/app/config.yaml
+      - ./litellm-proxy/costs.json:/app/costs.json
+    command: --config /app/config.yaml --port 8080 --host 0.0.0.0 --detailed_debug
+    networks:
+      - app_network
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+    environment:
+      - LITELLM_DB_URL=${LITELLM_DB_URL}
+      - DATABASE_URL=${LITELLM_DB_URL}
 
 networks:
   app_network:

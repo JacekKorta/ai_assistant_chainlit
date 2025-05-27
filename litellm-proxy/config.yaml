@@ -1,0 +1,54 @@
+model_list:
+  # OpenAI models
+  - model_name: gpt-4
+    litellm_params:
+      model: openai/gpt-4
+      api_key: ${OPENAI_API_KEY}
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: openai/gpt-3.5-turbo
+      api_key: ${OPENAI_API_KEY}
+  
+  # Anthropic models
+  - model_name: claude-3-opus
+    litellm_params:
+      model: anthropic/claude-3-opus-20240229
+      api_key: ${ANTHROPIC_API_KEY}
+  - model_name: claude-3-sonnet
+    litellm_params:
+      model: anthropic/claude-3-sonnet-20240229
+      api_key: ${ANTHROPIC_API_KEY}
+  - model_name: claude-3-haiku
+    litellm_params:
+      model: anthropic/claude-3-haiku-20240307
+      api_key: ${ANTHROPIC_API_KEY}
+  
+  # DeepSeek models
+  - model_name: deepseek-coder
+    litellm_params:
+      model: deepseek/deepseek-coder
+      api_key: ${DEEPSEEK_API_KEY}
+
+# Routing settings
+router_settings:
+  routing_strategy: simple
+  timeout: 30
+  num_retries: 3
+
+# Cost tracking
+cost_tracking:
+  enabled: true
+  cost_file: ./costs.json
+  detailed_view: true
+
+# Usage limits
+litellm_settings:
+  drop_params: true
+  success_callback: ["user_tracking"]
+  failure_callback: ["user_tracking"]
+  database_url: "${LITELLM_DB_URL}"
+
+# Logging
+general_settings:
+  proxy_logging: true
+  verbose: true
