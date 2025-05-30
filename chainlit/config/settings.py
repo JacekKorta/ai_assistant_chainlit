@@ -2,18 +2,28 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
-class OpenAISettings(BaseSettings):
-    url: str
-    api_key: str
+
+class ChainlitSettings(BaseSettings):
+    # Database settings
+    db_name: str
+    db_user: str
+    db_password: str
+    db_host: str
+    db_port: str
+    database_url: str
+    
+    # Proxy settings
+    proxy_api_key: str
+    proxy_api_url: str
 
     model_config = SettingsConfigDict(
-        env_prefix="OPENAI_",
+        env_prefix="CHAINLIT_",
         env_file="../.env",
         extra="ignore"
     )
 
 class Settings(BaseSettings):
-    openai: OpenAISettings = OpenAISettings() # noqa
+    chainlit: ChainlitSettings = ChainlitSettings() # noqa
 
     model_config = SettingsConfigDict(
         env_file="../.env",
