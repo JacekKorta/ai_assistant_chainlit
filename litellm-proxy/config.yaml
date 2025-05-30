@@ -3,34 +3,36 @@ model_list:
   - model_name: o4-mini
     litellm_params:
       model: openai/o4-mini
-      api_key: ${OPENAI_API_KEY}
+      api_key: "os.environ/OPENAI_API_KEY"
   - model_name: o3-mini
     litellm_params:
       model: openai/o3-mini
-      api_key: ${OPENAI_API_KEY}
+      api_key: "os.environ/OPENAI_API_KEY"
   - model_name: gpt-4.1-mini
     litellm_params:
       model: openai/gpt-4.1-mini
-      api_key: ${OPENAI_API_KEY}
+      api_key: "os.environ/OPENAI_API_KEY"
   - model_name: gpt-4.1-nano
     litellm_params:
       model: openai/gpt-4.1-nano
-      api_key: ${OPENAI_API_KEY}
+      api_key: "os.environ/OPENAI_API_KEY"
   - model_name: gpt-4o-mini
     litellm_params:
       model: openai/gpt-4o-mini
-      api_key: ${OPENAI_API_KEY}
+      api_key: "os.environ/OPENAI_API_KEY"    
   - model_name: gpt-4o
     litellm_params:
       model: openai/gpt-4o
-      api_key: ${OPENAI_API_KEY}
+      api_key: "os.environ/OPENAI_API_KEY"
 
 
-# Routing settings
-router_settings:
-  routing_strategy: simple
-  timeout: 30
-  num_retries: 3
+# Routing settings      
+  # Google Gemini models
+  - model_name: gemini-2.5-pro
+    litellm_params:
+      model: gemini/gemini-2.5-pro
+      api_key: "os.environ/GOOGLE_GEMINI_API_KEY"
+
 
 # Cost tracking
 cost_tracking:
@@ -40,11 +42,9 @@ cost_tracking:
 
 # Usage limits and logging settings
 litellm_settings:
-  drop_params: true
-  success_callback: ["user_tracking"]
-  failure_callback: ["user_tracking"]
   database_url: "${LITELLM_DB_URL}"
   set_verbose: false
+  store_model_in_db: true
 
 # Logging
 general_settings:
