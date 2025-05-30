@@ -103,7 +103,7 @@ services:
     volumes:
       - ./litellm-proxy/config.yaml:/app/config.yaml
       - ./litellm-proxy/costs.json:/app/costs.json
-    command: --config /app/config.yaml --port 8080 --host 0.0.0.0 --detailed_debug
+    command: --config /app/config.yaml --port 8080 --host 0.0.0.0
     networks:
       - app_network
     ports:
