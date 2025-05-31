@@ -6,14 +6,14 @@ import uuid
 settings = get_settings()
 client = AsyncOpenAI(api_key=settings.openai.api_key)
 
-@cl.on_chat_start
-async def on_chat_start():
-    # Unikalny identyfikator sesji
-    session_id = str(uuid.uuid4())
-    cl.user_session.set("session_id", session_id)
+# @cl.on_chat_start
+# async def on_chat_start():
+#     # Unikalny identyfikator sesji
+#     session_id = str(uuid.uuid4())
+#     cl.user_session.set("session_id", session_id)
     
-    # Taguj tę konwersację (przydatne przy przeglądaniu historii)
-    await cl.tag("nowa_konwersacja")
+#     # Taguj tę konwersację (przydatne przy przeglądaniu historii)
+#     await cl.tag("nowa_konwersacja")
 
 @cl.on_message
 async def on_message(message: cl.Message):

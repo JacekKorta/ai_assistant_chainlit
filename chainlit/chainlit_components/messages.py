@@ -1,23 +1,7 @@
-from functools import partial
-
 import chainlit as cl
 from openai import AsyncOpenAI
 
-import chainlit_components
-import config
-from config.settings import get_settings
-from config.chat_settings import start
 
-settings = get_settings()
-client = AsyncOpenAI(api_key=settings.chainlit.proxy_api_key, base_url=settings.chainlit.proxy_api_url)
-
-# Instrument the OpenAI client
-cl.instrument_openai()
-
-
-prepared_start = partial(start, settings)
-
-cl.on_chat_start(prepared_start)
 
 @cl.on_chat_resume
 async def on_chat_resume(thread):
