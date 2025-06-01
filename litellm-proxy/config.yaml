@@ -25,13 +25,18 @@ model_list:
       model: openai/gpt-4o
       api_key: "os.environ/OPENAI_API_KEY"
 
-
-# Routing settings      
+      
   # Google Gemini models
-  - model_name: gemini-2.5-pro
+  - model_name: gemini-2.5-flash
     litellm_params:
-      model: gemini/gemini-2.5-pro
+      model: gemini/gemini-2.5-flash
       api_key: "os.environ/GOOGLE_GEMINI_API_KEY"
+
+  # Perplexity models
+  - model_name: perplexity/sonar-pro
+    litellm_params:
+      model: perplexity/sonar-pro
+      api_key: "os.environ/PERPLEXITYAI_API_KEY"
 
 
 # Cost tracking
