@@ -1,33 +1,47 @@
 model_list:
   # OpenAI models
-  - model_name: o4-mini
+  - model_name: openai/o4-mini
     litellm_params:
       model: openai/o4-mini
       api_key: "os.environ/OPENAI_API_KEY"
-  - model_name: o3-mini
+  - model_name: openai/o3-mini
     litellm_params:
       model: openai/o3-mini
       api_key: "os.environ/OPENAI_API_KEY"
-  - model_name: gpt-4.1-mini
+  - model_name: openai/gpt-4.1-mini
     litellm_params:
       model: openai/gpt-4.1-mini
       api_key: "os.environ/OPENAI_API_KEY"
-  - model_name: gpt-4.1-nano
+  - model_name: openai/gpt-4.1-nano
     litellm_params:
       model: openai/gpt-4.1-nano
       api_key: "os.environ/OPENAI_API_KEY"
-  - model_name: gpt-4o-mini
+  - model_name: openai/gpt-4o-mini
     litellm_params:
       model: openai/gpt-4o-mini
       api_key: "os.environ/OPENAI_API_KEY"    
-  - model_name: gpt-4o
+  - model_name: openai/gpt-4o
     litellm_params:
       model: openai/gpt-4o
       api_key: "os.environ/OPENAI_API_KEY"
 
+  # Anthropic models
+  - model_name: antropic/claude-sonnet-4-20250514
+    litellm_params:
+      model: anthropic/claude-sonnet-4-20250514
+      api_key: "os.environ/ANTHROPIC_API_KEY"
+  - model_name: antropic/claude-3-5-sonnet-20240620
+    litellm_params:
+      model: anthropic/claude-3-5-sonnet-20240620
+      api_key: "os.environ/ANTHROPIC_API_KEY"
+  - model_name: antropic/claude-3-haiku-2024030
+    litellm_params:
+      model: anthropic/claude-3-haiku-2024030
+      api_key: "os.environ/ANTHROPIC_API_KEY"
+    provider: anthropic
       
   # Google Gemini models
-  - model_name: gemini-2.5-flash
+  - model_name: google/gemini-2.5-flash
     litellm_params:
       model: gemini/gemini-2.5-flash
       api_key: "os.environ/GOOGLE_GEMINI_API_KEY"
@@ -37,6 +51,12 @@ model_list:
     litellm_params:
       model: perplexity/sonar-pro
       api_key: "os.environ/PERPLEXITYAI_API_KEY"
+
+  # other models
+  - model_name: huggingface/deepseek-r1
+    litellm_params:
+      model: huggingface/together/deepseek-ai/DeepSeek-R1
+      api_key: os.environ/HF_TOKEN
 
 
 # Cost tracking

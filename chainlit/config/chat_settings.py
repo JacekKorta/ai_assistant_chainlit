@@ -20,9 +20,14 @@ async def fetch_models(settings):
 
 async def start(settings):
     models_response = await fetch_models(settings)
-    models = [model["id"] for model in models_response["data"]]
-    if not models:
-        models = ["gpt-4.1", "gpt-4.1-nano", "gpt-4o-mini"]
+    models_items = {model["id"].split("/")[1]: model["id"] for model in models_response["data"]}
+    if not models_items:
+        models_items = {"gpt-4.1": "openai/gpt-4.1",
+                         "gpt-4.1-nano": "openai/gpt-4.1-nano",
+                         "gpt-4o-mini": "openai/gpt-4o-mini",
+                         "gpt-4o": "openai/gpt-4o"}
+        
+    sorted_models_items = dict(sorted(models_items.items(), key=lambda x: x[0]))
 
     session_id = str(uuid.uuid4())
     cl.user_session.set("session_id", session_id)
@@ -33,16 +38,8 @@ async def start(settings):
             Select(
                 id="Model",
                 label="Available Models",
-                values=models,
-                initial_value="gpt-4o-mini" # todo: pozwolić skonfigurowac userowi lub wczytać z globalnego
-            ),
-            Slider(
-                id="Temperature",
-                label="OpenAI - Temperature",
-                initial=1,
-                min=0,
-                max=2,
-                step=0.1,
+                items=sorted_models_items,
+                initial_value="openai/gpt-4o-mini" # todo: pozwolić skonfigurowac userowi lub wczytać z globalnego
             ),
         ]
     ).send()
