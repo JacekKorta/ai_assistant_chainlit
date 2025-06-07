@@ -3,7 +3,7 @@ import uuid
 
 import chainlit as cl
 from chainlit.input_widget import Select, Switch, Slider
-
+from openai import AsyncOpenAI
 
 async def fetch_models(settings):
     print("settings:", settings)
@@ -29,9 +29,16 @@ async def start(settings):
         
     sorted_models_items = dict(sorted(models_items.items(), key=lambda x: x[0]))
 
+
+    client: AsyncOpenAI = AsyncOpenAI(api_key=settings.chainlit.proxy_api_key, base_url=settings.chainlit.proxy_api_url)
+
     session_id = str(uuid.uuid4())
     cl.user_session.set("session_id", session_id)
-    
+    cl.user_session.set(
+        "message_history",
+        [{"role": "system", "content": "You are a helpful assistant."}],
+    )
+    cl.user_session.set("client", client)
 
     chat_settings = await cl.ChatSettings(
         [
